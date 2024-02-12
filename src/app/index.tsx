@@ -7,10 +7,12 @@ import { CategoryItem } from '../components/categoryItem'
 
 import { CATEGORIES, MENU } from '../utils/data/products'
 import { Link } from 'expo-router'
+import { useCartStore } from '../store/cart-store'
 
 
 
 export default function Home() {
+    const cartStore = useCartStore()
     const [ category, setCategory ] = useState(CATEGORIES[0])
     const sectionListRef = useRef<SectionList>(null)
 
@@ -28,9 +30,14 @@ export default function Home() {
         }
     }
 
+    const cartQuantityItems = cartStore.products.reduce(
+        (total, product) => total + product.quantity,
+        0,
+      );
+
     return (
         <View className="flex-1 pt-8">
-            <Header title='Cardapio'/>
+            <Header title='Cardapio' cartItens={cartQuantityItems}/>
             <FlatList
                 data={CATEGORIES}
                 keyExtractor={ (item)=> item }
