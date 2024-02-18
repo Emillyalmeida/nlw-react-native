@@ -9,6 +9,7 @@ import { useNavigation } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { Button } from "../components/button";
 import { ButtonLink } from "../components/button-link";
+import colors from "tailwindcss/colors";
 
 const PHONE_NUMBER = '55'
 
@@ -54,7 +55,7 @@ export default function Cart() {
 
     return (
         <View className="flex-1 pt-8">
-            <Header title="Seu carrinho"/>
+            <Header title="Seu carrinho" isCart/>
 
             <ScrollView>
                 <View className="flex-1 p-5">
@@ -68,7 +69,13 @@ export default function Cart() {
                         }
                     </View>
                     ) : (
-                    <Text>Seu carrinho está vazio</Text>)}
+                    <View className="flex-1 justify-center items-center gap-5">
+                        <Feather name="alert-triangle" size={48} color={colors.white}/>
+                        <Text className="text-white font-subtitle text-xl">
+                            Seu carrinho está vazio
+                        </Text>
+                    </View>
+                    )}
 
                     <View className="flex-row gap-2 items-center mt-5 mb-4">
                         <Text className="text-white text-xl font-subtitle">Total:</Text>
