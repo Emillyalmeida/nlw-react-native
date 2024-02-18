@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { ProductProps } from "../utils/data/products";
 
+import { createJSONStorage, persist } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import * as cartInMemory from './helpers/cart-in-memory';
 
 export type productCartProps = ProductProps & {
@@ -10,15 +13,28 @@ export type productCartProps = ProductProps & {
 type StateProps = {
     products: productCartProps[],
     add: (product: ProductProps) => void
+    remove: (productId: string) => void;
+    clear: () => void;
 }
 
-export const useCartStore = create<StateProps>((set)=> ({
+export const useCartStore = create(
+    persist<StateProps>((set)=> ({
     products: [],
 
     add: (product: ProductProps) =>
         set((state) => ({
             products: cartInMemory.Add(state.products, product),
         })),
+    
+    remove: (productId: string) =>
+        set((state) => ({
+            products: cartInMemory.Remove(state.products, productId),
+        })),
+
+    clear: () => set({ products: [] }),
+}), {
+    name: "nlw-react-native",
+    storage: createJSONStorage(() => AsyncStorage),
 }))
 
 

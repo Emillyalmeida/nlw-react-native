@@ -4,7 +4,8 @@ import { Image, ImageProps, Text, TouchableOpacity, TouchableOpacityProps, View 
 type productDataProps = {
     title: string,
      description: string,
-     thumbnail: ImageProps
+     thumbnail: ImageProps,
+     quantity?: number
 }
 
 type productProps = TouchableOpacityProps & {
@@ -16,9 +17,15 @@ export const Product =  forwardRef<TouchableOpacity, productProps>(({ data, ...r
         <TouchableOpacity ref={ref} className="w-full flex-row pb-4 items-center" { ...rest }>
             <Image className="w-20 h-20 rounded-md" source={ data.thumbnail }/>
             <View className="flex-1 ml-3">
-                <Text className="text-base font-subtitle text-slate-100 flex-1">
-                    { data.title }
-                </Text>
+                <View className="flex-row items-center">
+                    <Text className="text-slate-100 font-subtitle text-base flex-1">
+                        {data.title}
+                    </Text>
+
+                    {data.quantity && (
+                        <Text className="text-slate-400 font-subtitle text-sm">x {data.quantity}</Text>
+                    )}
+                </View>
                 <Text className="text-slate-400 text-xs mt-1">
                     { data.description }
                 </Text>
