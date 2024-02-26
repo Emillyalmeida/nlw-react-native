@@ -5,6 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as cartInMemory from './helpers/cart-in-memory';
+import { LocationObject } from "expo-location";
 
 export type productCartProps = ProductProps & {
     quantity: number
@@ -12,14 +13,28 @@ export type productCartProps = ProductProps & {
 
 type StateProps = {
     products: productCartProps[],
-    add: (product: ProductProps) => void
-    remove: (productId: string) => void;
-    clear: () => void;
+    location: LocationObject,
+    add: (product: ProductProps) => void,
+    remove: (productId: string) => void,
+    clear: () => void,
+    updateLocation: (location: LocationObject) => void
 }
 
 export const useCartStore = create(
     persist<StateProps>((set)=> ({
     products: [],
+    location: {
+        coords: {
+            latitude: 0,
+            longitude: 0,
+            altitude: null,
+            accuracy: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null
+        },
+        timestamp: 0
+    },
 
     add: (product: ProductProps) =>
         set((state) => ({
@@ -32,6 +47,12 @@ export const useCartStore = create(
         })),
 
     clear: () => set({ products: [] }),
+
+    updateLocation: (location: LocationObject) => {
+        set(()=> ({
+            location: location
+        }))
+    }
 }), {
     name: "nlw-react-native",
     storage: createJSONStorage(() => AsyncStorage),

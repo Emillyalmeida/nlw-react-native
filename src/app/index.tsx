@@ -1,5 +1,5 @@
 import { View, Text, FlatList, SectionList } from 'react-native'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Header } from '../components/header'
 import { Product } from '../components/product'
@@ -8,12 +8,29 @@ import { CategoryItem } from '../components/categoryItem'
 import { CATEGORIES, MENU, ProductProps } from '../utils/data/products'
 import { Link } from 'expo-router'
 import { useCartStore } from '../store/cart-store'
+import * as Location from 'expo-location';
+import { LocationObject } from 'expo-location'
 
 
 export default function Home() {
     const cartStore = useCartStore()
     const [ category, setCategory ] = useState(CATEGORIES[0])
     const sectionListRef = useRef<SectionList<ProductProps>>(null)
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+    useEffect(() => {
+        (async () => {
+          
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+            setErrorMsg('Permission to access location was denied');
+            return;
+          }
+    
+          let location = await Location.getCurrentPositionAsync({});
+          cartStore.updateLocation(location)
+        })();
+      }, []);
 
     function handerSelectCategory (selectedCategory : string){
         setCategory(selectedCategory)

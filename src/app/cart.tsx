@@ -1,14 +1,16 @@
 import { Alert, Linking, ScrollView, Text, View } from "react-native";
+import React, { useState } from "react";
+import { useNavigation } from "expo-router";
+import { Feather } from "@expo/vector-icons";
+
 import { productCartProps, useCartStore } from "../store/cart-store";
 import { Header } from "../components/header";
 import { Product } from "../components/product";
 import { Input } from "../components/input";
-import { formatCurrency } from "../utils/functions/format-currency";
-import React, { useState } from "react";
-import { useNavigation } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 import { Button } from "../components/button";
 import { ButtonLink } from "../components/button-link";
+
+import { formatCurrency } from "../utils/functions/format-currency";
 import colors from "tailwindcss/colors";
 
 const PHONE_NUMBER = '55'
@@ -16,7 +18,7 @@ const PHONE_NUMBER = '55'
 export default function Cart() {
     const cartStore = useCartStore()
     const navigation = useNavigation()
-    const [address, setAddress] = useState('');
+    const [address, setAddress] = useState('')
 
     const total = formatCurrency(cartStore.products.reduce((total, product) => total + product.price * product.quantity,0));
 
@@ -53,6 +55,28 @@ export default function Cart() {
         navigation.goBack();
     }
 
+    const reverseGeocode = async () => {
+        const location = cartStore.location.coords
+
+        try {
+            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${location.latitude},${location.longitude}&key=${process.env.EXPO_PUBLIC_API_KEY}`);
+            const data = await response.json();
+            
+            if (data.results.length > 0) {
+                const addressData = data.results[0].formatted_address;
+                setAddress(addressData)
+                return address;
+            } else {
+                console.log("No address found");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching address:", error);
+            return null;
+        }
+
+    };
+
     return (
         <View className="flex-1 pt-8">
             <Header title="Seu carrinho" isCart/>
@@ -82,8 +106,16 @@ export default function Cart() {
                         <Text className="text-lime-400 text-2xl font-heading">{total}</Text>
                     </View>
 
+                    <Button className="mb-4" onPress={reverseGeocode}>
+                        <Button.Icon>
+                            <Feather name="map-pin" size={20} />
+                        </Button.Icon>
+                        <Button.Text>Usar Localização Atual</Button.Text>
+                    </Button>
+
                     <Input
                         placeholder="Informe o endereço de entrega com rua, bairro, CEP, número e complemento..."
+                        value={address}
                         onChangeText={setAddress}
                         blurOnSubmit={true}
                         onSubmitEditing={handleOrder}
